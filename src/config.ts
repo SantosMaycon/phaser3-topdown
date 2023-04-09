@@ -11,11 +11,14 @@ export default {
   physics: {
     default: 'arcade',
     arcade: {
-      debug: false,
+      debug: true,
     },
   },
   render: {
     antialiasGL: false,
     pixelArt: true,
   },
+  input: {
+    gamepad: true
+  }
 } as Phaser.Types.Core.GameConfig;
