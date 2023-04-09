@@ -1,6 +1,7 @@
 import { Actor } from "./Actor";
 
 export class Player extends Actor {
+  private gamepad!: Phaser.Input.Gamepad.GamepadPlugin;
   private keyW!: Phaser.Input.Keyboard.Key;
   private keyA!: Phaser.Input.Keyboard.Key;
   private keyS!: Phaser.Input.Keyboard.Key;
@@ -10,6 +11,8 @@ export class Player extends Actor {
 
   constructor(scene: Phaser.Scene, x: number, y: number, velocity: number) {
     super(scene, x, y, 'king');
+
+    this.gamepad = this.scene.input.gamepad;
 
     this.keyW = this.scene.input.keyboard.addKey('W');
     this.keyA = this.scene.input.keyboard.addKey('A');
@@ -24,19 +27,17 @@ export class Player extends Actor {
 
   update() {
     this.getBody().setVelocity(0);
+    const pad = this.gamepad.getPad(0);
 
-    if (this.keyW?.isDown) {
+    if (this.keyW?.isDown || pad?.leftStick.y < 0) {
       this.body.velocity.y = -this.velocity;
-    }
-    if (this.keyA?.isDown) {
+    } else if (this.keyA?.isDown || pad?.leftStick.x < 0) {
       this.body.velocity.x = -this.velocity;
       this.checkFlip();
       this.getBody().offset.x = 32;
-    }
-    if (this.keyS?.isDown) {
+    } else if (this.keyS?.isDown || pad?.leftStick.y > 0) {
       this.body.velocity.y = this.velocity;
-    }
-    if (this.keyD?.isDown) {
+    } else if (this.keyD?.isDown || pad?.leftStick.x > 0) {
       this.body.velocity.x = this.velocity;
       this.checkFlip();
       this.getBody().offset.x = 13;
