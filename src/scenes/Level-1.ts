@@ -1,15 +1,18 @@
 import Phaser, { GameObjects } from 'phaser';
+import { Player } from "./../classes/Player";
 
 export default class Level1 extends Phaser.Scene {
-  private king!: GameObjects.Sprite;
+  private king!: Player;
 
   constructor() {
     super('Level1Scene');
   }
 
-  preload() {}
-
   create() {
-    this.king = this.add.sprite(50, 50, 'king');
+    this.king = new Player(this, 50, 50, 450);
+  }
+
+  update(time: number, delta: number) {
+    this.king.update();
   }
 }
