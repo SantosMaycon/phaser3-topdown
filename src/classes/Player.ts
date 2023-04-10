@@ -20,9 +20,11 @@ export class Player extends Actor {
     this.keyD = this.scene.input.keyboard.addKey('D');
 
     this.getBody().setSize(20, 10);
-    this.getBody().setOffset(13, 19);
+    this.getBody().setOffset(22,33);
 
     this.velocity = velocity
+
+    this.initAnimations();
   }
 
   update() {
@@ -47,8 +49,6 @@ export class Player extends Actor {
       if (this.keyW?.isDown || this.keyS?.isDown) {
         this.body.velocity.x *= diagonalFactor;
       }
-      this.checkFlip();
-      this.getBody().offset.x = 32;
     }
     if (this.keyS?.isDown) {
       this.body.velocity.y = this.velocity;
@@ -61,8 +61,45 @@ export class Player extends Actor {
       if (this.keyW?.isDown || this.keyS?.isDown) {
         this.body.velocity.x *= diagonalFactor;
       }
+    }
+
+    if (this.getBody().velocity.x !== 0 || this.getBody().velocity.y !== 0) {
+      this.anims.play('run', true);
       this.checkFlip();
-      this.getBody().offset.x = 13;
+      if (Math.sign(this.getBody().velocity.x) === 1) {
+        this.getBody().offset.x = 22;
+      }
+      else if (Math.sign(this.getBody().velocity.x) === -1) {
+        this.getBody().offset.x = 42;
+      } 
+    } else {
+      this.anims.play('idle', true);
     }
   }
+
+
+  private initAnimations(): void {
+    this.scene.anims.create({
+      key: 'idle',
+      frames: [{ key: 'a-king', frame: 'run-2'}],
+      frameRate: 1,
+    });
+    this.scene.anims.create({
+      key: 'run',
+      frames: this.scene.anims.generateFrameNames('a-king', {
+        prefix: 'run-',
+        end: 7,
+      }),
+      frameRate: 8,
+      repeat: -1
+    });
+    this.scene.anims.create({
+      key: 'attack',
+      frames: this.scene.anims.generateFrameNames('a-king', {
+        prefix: 'attack-',
+        end: 2,
+      }),
+      frameRate: 8,
+    });
+	}
 }
