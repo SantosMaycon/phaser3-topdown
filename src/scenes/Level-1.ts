@@ -9,7 +9,7 @@ export default class Level1 extends Phaser.Scene {
   }
 
   create() {
-    this.king = new Player(this, 50, 50, 450);
+    this.king = new Player(this, 50, 50, 200);
   }
 
   update(time: number, delta: number) {

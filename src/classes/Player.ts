@@ -28,17 +28,39 @@ export class Player extends Actor {
   update() {
     this.getBody().setVelocity(0);
     const pad = this.gamepad.getPad(0);
+    
+    if (pad) {
+      this.getBody().setVelocityX(pad.leftStick.x * this.velocity);
+      this.getBody().setVelocityY(pad.leftStick.y * this.velocity);
+    }
 
-    if (this.keyW?.isDown || pad?.leftStick.y < 0) {
+    const diagonalFactor = 0.7; // fator de multiplicação para a velocidade diagonal
+    
+    if (this.keyW?.isDown) {
       this.body.velocity.y = -this.velocity;
-    } else if (this.keyA?.isDown || pad?.leftStick.x < 0) {
+      if (this.keyA?.isDown || this.keyD?.isDown) {
+        this.body.velocity.y *= diagonalFactor;
+      }
+    }
+    if (this.keyA?.isDown) {
       this.body.velocity.x = -this.velocity;
+      if (this.keyW?.isDown || this.keyS?.isDown) {
+        this.body.velocity.x *= diagonalFactor;
+      }
       this.checkFlip();
       this.getBody().offset.x = 32;
-    } else if (this.keyS?.isDown || pad?.leftStick.y > 0) {
+    }
+    if (this.keyS?.isDown) {
       this.body.velocity.y = this.velocity;
-    } else if (this.keyD?.isDown || pad?.leftStick.x > 0) {
+      if (this.keyA?.isDown || this.keyD?.isDown) {
+        this.body.velocity.y *= diagonalFactor;
+      }
+    }
+    if (this.keyD?.isDown) {
       this.body.velocity.x = this.velocity;
+      if (this.keyW?.isDown || this.keyS?.isDown) {
+        this.body.velocity.x *= diagonalFactor;
+      }
       this.checkFlip();
       this.getBody().offset.x = 13;
     }
