@@ -7,7 +7,7 @@ export class Player extends Actor {
   private keyS!: Phaser.Input.Keyboard.Key;
   private keyD!: Phaser.Input.Keyboard.Key;
 
-  private velocity!: number
+  private velocity!: number;
 
   constructor(scene: Phaser.Scene, x: number, y: number, velocity: number) {
     super(scene, x, y, 'king');
@@ -22,7 +22,8 @@ export class Player extends Actor {
     this.getBody().setSize(20, 10);
     this.getBody().setOffset(22,33);
 
-    this.velocity = velocity
+    this.velocity = velocity;
+    this.setScale(2, 2);
 
     this.initAnimations();
   }
@@ -65,11 +66,12 @@ export class Player extends Actor {
 
     if (this.getBody().velocity.x !== 0 || this.getBody().velocity.y !== 0) {
       this.anims.play('run', true);
-      this.checkFlip();
       if (Math.sign(this.getBody().velocity.x) === 1) {
+        this.checkFlip();
         this.getBody().offset.x = 22;
       }
       else if (Math.sign(this.getBody().velocity.x) === -1) {
+        this.checkFlip();
         this.getBody().offset.x = 42;
       } 
     } else {

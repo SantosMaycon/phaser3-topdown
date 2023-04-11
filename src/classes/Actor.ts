@@ -34,7 +34,8 @@ export class Actor extends Physics.Arcade.Sprite {
   }
 
   protected checkFlip() {
-    this.scaleX = this.body.velocity.x < 0 ? -1 : 1;
+    const direction = Math.abs(this.scaleX);
+    this.scaleX = this.body.velocity.x < 0 ? -direction : direction;
   }
 
   protected getBody(): Physics.Arcade.Body {
