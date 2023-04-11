@@ -8,7 +8,6 @@ export class Actor extends Physics.Arcade.Sprite {
     
     scene.add.existing(this);
     scene.physics.add.existing(this);
-    this.setCollideWorldBounds(true);
   }
 
   public getDamage(value?: number) {
