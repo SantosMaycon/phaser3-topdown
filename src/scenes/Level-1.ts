@@ -3,6 +3,7 @@ import { Player } from './../classes/Player';
 import { createLayer } from './../utils/CreateLayer' 
 import { debugDraw } from './../utils/Debug' 
 import { gameObjectsToObjectPoints } from '../helpers/gameobject-to-object-point';
+import { EVENTS_NAME } from '../utils/Consts';
 
 export default class Level1 extends Phaser.Scene {
   private king!: Player;
@@ -16,11 +17,11 @@ export default class Level1 extends Phaser.Scene {
   create() {
     this.king = new Player(this, 150, 155, 200);
     this.king.depth = 2;
-    
+
     this.initMap();
     this.initChests();
     
-    this.cameras.main.startFollow(this.king, true);
+    this.cameras.main.startFollow(this.king, true,  0.09, 0.09);
   }
 
   update(time: number, delta: number) {
@@ -34,9 +35,9 @@ export default class Level1 extends Phaser.Scene {
     const ground = createLayer(this.map, tileset, 'Ground', 0, 2, false);
     const walls = createLayer(this.map, tileset, 'Walls', 1, 2, true);
 
-    this.physics.add.collider(this.king, walls);
+    this.physics.add.collider(this.king, walls,);
   
-    debugDraw(walls, this);
+    // debugDraw(walls, this);
   }
 
   private initChests() {
@@ -50,6 +51,7 @@ export default class Level1 extends Phaser.Scene {
 
     this.chests.forEach(chest => {
       this.physics.add.overlap(this.king, chest, (king, chest) => {
+        this.game.events.emit(EVENTS_NAME.chestLoot);
         chest.destroy();
         this.cameras.main.flash();
       })

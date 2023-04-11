@@ -27,5 +27,6 @@ export default class Load extends Phaser.Scene {
 
   create() {
     this.scene.start('Level1Scene');
+    this.scene.start('UIScene');
   }
 }
