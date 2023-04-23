@@ -2,6 +2,7 @@ import { Physics } from "phaser";
 
 export class Actor extends Physics.Arcade.Sprite {
   protected hp = 100;
+  private timeoutId: number | undefined;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, frame?: string | number) {
     super(scene, x, y, texture, frame);
@@ -11,6 +12,27 @@ export class Actor extends Physics.Arcade.Sprite {
   }
 
   public getDamage(value?: number) {
+    this.scene.tweens.add({
+      targets: {},
+      x: 0,
+      duration: 100,
+      repeat: 3,
+      yoyo: true,
+      onStart: () => {
+        this.timeoutId = setTimeout(() => {
+          this.setAlpha(0.5);
+        }, 0);
+
+        if (value) {
+          this.hp = this.hp - value;
+        }
+      },
+      onComplete: () => {
+        this.setAlpha(1);
+        clearTimeout(this.timeoutId)
+      }
+    });
+    
     this.scene.tweens.add({
       targets: this,
       duration: 100,
