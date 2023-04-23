@@ -1,4 +1,5 @@
 import { Actor } from "./Actor";
+import { Text } from "./Text";
 
 export class Player extends Actor {
   private gamepad!: Phaser.Input.Gamepad.GamepadPlugin;
@@ -8,6 +9,10 @@ export class Player extends Actor {
   private keyD!: Phaser.Input.Keyboard.Key;
 
   private velocity!: number;
+
+  private hpValue!: Text;
+
+  private isLookingRight = true;
 
   constructor(scene: Phaser.Scene, x: number, y: number, velocity: number) {
     super(scene, x, y, 'king');
@@ -23,9 +28,21 @@ export class Player extends Actor {
     this.getBody().setOffset(22,33);
 
     this.velocity = velocity;
-    this.setScale(2, 2);
+    this.setScale(1.5);
 
     this.initAnimations();
+    this.hp = 100;
+
+    setTimeout(() => {
+      this.hpValue = new Text(scene, this.x, this.y - this.height * 0.6, this.hp.toString())
+        .setFontSize(12)
+        .setOrigin(0.8, 0.5);
+    }, 0);
+  }
+
+  public getDamage(value?: number) {
+    super.getDamage(value);
+    this.hpValue.setText(this.hp.toString());
   }
 
   update() {
@@ -64,21 +81,27 @@ export class Player extends Actor {
       }
     }
 
-    if (this.getBody().velocity.x !== 0 || this.getBody().velocity.y !== 0) {
+    const isMove = this.getBody().velocity.x !== 0 || this.getBody().velocity.y !== 0;
+
+    if (isMove) {
       this.anims.play('run', true);
-      if (Math.sign(this.getBody().velocity.x) === 1) {
+      if ( Math.sign(this.getBody().velocity.x) === 1) {
         this.checkFlip();
         this.getBody().offset.x = 22;
+        this.isLookingRight = true;
       }
       else if (Math.sign(this.getBody().velocity.x) === -1) {
         this.checkFlip();
         this.getBody().offset.x = 42;
+        this.isLookingRight = false;
       } 
     } else {
       this.anims.play('idle', true);
     }
+      
+    this.hpValue?.setPosition(this.x, this.y - this.height * 0.6);
+    this.hpValue?.setOrigin(this.isLookingRight ? 1 : 0, 0.5);
   }
-
 
   private initAnimations(): void {
     this.scene.anims.create({
