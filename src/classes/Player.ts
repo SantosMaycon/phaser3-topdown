@@ -1,5 +1,7 @@
+import { Input } from "phaser";
 import { Actor } from "./Actor";
 import { Text } from "./Text";
+import { EVENTS_NAME } from "../utils/Consts";
 
 export class Player extends Actor {
   private gamepad!: Phaser.Input.Gamepad.GamepadPlugin;
@@ -7,12 +9,14 @@ export class Player extends Actor {
   private keyA!: Phaser.Input.Keyboard.Key;
   private keyS!: Phaser.Input.Keyboard.Key;
   private keyD!: Phaser.Input.Keyboard.Key;
+  private keySpace!: Input.Keyboard.Key;
 
   private velocity!: number;
 
   private hpValue!: Text;
 
   private isLookingRight = true;
+  private isAttacking = false;
 
   constructor(scene: Phaser.Scene, x: number, y: number, velocity: number) {
     super(scene, x, y, 'king');
@@ -33,6 +37,13 @@ export class Player extends Actor {
     this.initAnimations();
     this.hp = 100;
 
+    this.keySpace = this.scene.input.keyboard.addKey(32);
+    this.on('animationcomplete', (animation: any, frame: any) => {
+      if (animation.key === 'attack') {
+        this.isAttacking = false;
+      }
+    });
+
     setTimeout(() => {
       this.hpValue = new Text(scene, this.x, this.y - this.height * 0.6, this.hp.toString())
         .setFontSize(12)
@@ -46,16 +57,19 @@ export class Player extends Actor {
   }
 
   update() {
+    this.hpValue?.setPosition(this.x, this.y - this.height * 0.6);
+    if (this.isAttacking) return
+
     this.getBody().setVelocity(0);
     const pad = this.gamepad.getPad(0);
-    
+
     if (pad) {
       this.getBody().setVelocityX(pad.leftStick.x * this.velocity);
       this.getBody().setVelocityY(pad.leftStick.y * this.velocity);
     }
 
     const diagonalFactor = 0.7; // fator de multiplicação para a velocidade diagonal
-    
+
     if (this.keyW?.isDown) {
       this.body.velocity.y = -this.velocity;
       if (this.keyA?.isDown || this.keyD?.isDown) {
@@ -81,26 +95,41 @@ export class Player extends Actor {
       }
     }
 
-    const isMove = this.getBody().velocity.x !== 0 || this.getBody().velocity.y !== 0;
-
-    if (isMove) {
-      this.anims.play('run', true);
-      if ( Math.sign(this.getBody().velocity.x) === 1) {
-        this.checkFlip();
-        this.getBody().offset.x = 22;
-        this.isLookingRight = true;
-      }
-      else if (Math.sign(this.getBody().velocity.x) === -1) {
-        this.checkFlip();
-        this.getBody().offset.x = 42;
-        this.isLookingRight = false;
-      } 
-    } else {
-      this.anims.play('idle', true);
+    if (this.keySpace?.isDown) {
+      this.anims.play('attack', true);
+      this.scene.game.events.emit(EVENTS_NAME.attack);
+      this.isAttacking = true;
+    } else if (!this.isAttacking) {
+      this.updateMovement();
     }
+
+  }
+
+  updateMovement() {
+    const isMoving = this.getBody().velocity.x !== 0 || this.getBody().velocity.y !== 0;
+
+    this.anims.play(isMoving ? 'run' : 'idle', true);
+
+    if (this.getBody().velocity.x !== 0) {
+      var xOffset!: number;
+      const direction = Math.sign(this.getBody().velocity.x)
       
-    this.hpValue?.setPosition(this.x, this.y - this.height * 0.6);
-    this.hpValue?.setOrigin(this.isLookingRight ? 1 : 0, 0.5);
+
+      if (direction === 1) {
+        xOffset = 22;
+        this.isLookingRight = true;
+        this.hpValue?.setOrigin(1, 0.5);
+      } else if (direction === -1) {
+        xOffset = 42;
+        this.isLookingRight = false;
+        this.hpValue?.setOrigin(0, 0.5);
+      }
+
+      this.checkFlip();
+      if (direction != 0) {
+        this.getBody().offset.x = xOffset;
+      }
+    }
   }
 
   private initAnimations(): void {

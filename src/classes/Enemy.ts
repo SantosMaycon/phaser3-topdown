@@ -1,9 +1,11 @@
+import { EVENTS_NAME } from "../utils/Consts";
 import { Actor } from "./Actor";
 import { Player } from "./Player";
 
 export class Enemy extends Actor {
   private  target: Player;
   private AGRESSOR_RADIUS = 100;
+  private attackHandler: () => void;
 
   constructor(scene: Phaser.Scene, x: number, y: number, texture: string, target: Player, frame?: string | number) {
     super(scene, x, y, texture, frame);
@@ -15,6 +17,28 @@ export class Enemy extends Actor {
 
     this.getBody().setSize(16, 16);
     this.getBody().setOffset(1, 0);
+
+    this.attackHandler = () => {
+      if (
+        Phaser.Math.Distance.BetweenPoints(
+          { x: this.x, y: this.y },
+          { x: this.target.x, y: this.target.y },
+        ) < this.target.width
+      ) {
+        this.getDamage();
+        this.disableBody(true, false);
+        this.scene.time.delayedCall(300, () => {
+          this.destroy();
+        });
+      }
+    }
+
+    // EVENTS
+    this.scene.game.events.on(EVENTS_NAME.attack, this.attackHandler, this);
+    this.scene.game.events.on('destroy', () => {
+      console.log('On Destroy');
+      this.scene.game.events.removeListener(EVENTS_NAME.attack, this.attackHandler);
+    })
   }
 
 
