@@ -12,7 +12,7 @@ export class Actor extends Physics.Arcade.Sprite {
   }
 
   public getDamage(value?: number) {
-    this.scene.tweens.add({
+    this.scene?.tweens.add({
       targets: {},
       x: 0,
       duration: 100,
