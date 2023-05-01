@@ -81,7 +81,7 @@ export default class Level1 extends Phaser.Scene {
     this.physics.add.collider(this.enemies, this.walls);
     this.physics.add.collider(this.enemies, this.enemies);
     this.physics.add.collider(this.king, this.enemies, (obj1, obj2) => {
-      (obj1 as Player).getDamage(5);
+      (obj1 as Player).getDamage(1);
     });
   }
 }

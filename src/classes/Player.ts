@@ -18,6 +18,9 @@ export class Player extends Actor {
   private isLookingRight = true;
   private isAttacking = false;
 
+  private attackArea!: Phaser.GameObjects.Arc
+  public attackRadius = 20;
+
   constructor(scene: Phaser.Scene, x: number, y: number, velocity: number) {
     super(scene, x, y, 'king');
 
@@ -48,7 +51,14 @@ export class Player extends Actor {
       this.hpValue = new Text(scene, this.x, this.y - this.height * 0.6, this.hp.toString())
         .setFontSize(12)
         .setOrigin(0.8, 0.5);
+    
+      // Attack
+      this.attackArea = scene.add.circle(0, 0, this.attackRadius, 0x0000ff, 0);
     }, 0);
+
+    this.on('destroy', () => {
+      this.keySpace.removeAllListeners();
+    });
   }
 
   public getDamage(value?: number) {
@@ -59,8 +69,16 @@ export class Player extends Actor {
     }
   }
 
+  public getAttackArea() {
+    return { x: this.attackArea?.x, y: this.attackArea?.y }
+  }
+
   update() {
+    const attackDirection = this.isLookingRight ? +40 : -40
+
     this.hpValue?.setPosition(this.x, this.y - this.height * 0.6);
+    this.attackArea?.setPosition(this.x + attackDirection, this.y);
+
     if (this.isAttacking) return
 
     this.getBody().setVelocity(0);
@@ -102,6 +120,7 @@ export class Player extends Actor {
       this.anims.play('attack', true);
       this.scene.game.events.emit(EVENTS_NAME.attack);
       this.isAttacking = true;
+      this.getBody().setVelocity(0);
     } else if (!this.isAttacking) {
       this.updateMovement();
     }

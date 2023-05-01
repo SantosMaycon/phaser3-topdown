@@ -33,7 +33,7 @@ export class Actor extends Physics.Arcade.Sprite {
       }
     });
     
-    this.scene.tweens.add({
+    this.scene?.tweens.add({
       targets: this,
       duration: 100,
       repeat: 3,
