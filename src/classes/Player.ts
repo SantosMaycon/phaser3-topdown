@@ -1,7 +1,7 @@
 import { Input } from "phaser";
 import { Actor } from "./Actor";
 import { Text } from "./Text";
-import { EVENTS_NAME } from "../utils/Consts";
+import { EVENTS_NAME, GameStatus } from "../utils/Consts";
 
 export class Player extends Actor {
   private gamepad!: Phaser.Input.Gamepad.GamepadPlugin;
@@ -54,6 +54,9 @@ export class Player extends Actor {
   public getDamage(value?: number) {
     super.getDamage(value);
     this.hpValue.setText(this.hp.toString());
+    if (this.hp <= 0) {
+      this.scene.game.events.emit(EVENTS_NAME.gameEnd, GameStatus.LOSE);
+    }
   }
 
   update() {
