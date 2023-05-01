@@ -60,6 +60,10 @@ export default class Level1 extends Phaser.Scene {
         this.cameras.main.flash();
       })
     });
+
+    setTimeout(() => {
+      this.game.events.emit(EVENTS_NAME.totalChest, 10 * chestPoints.length);
+    }, 0);
   }
 
   private initEnemies() {
@@ -77,8 +81,7 @@ export default class Level1 extends Phaser.Scene {
     this.physics.add.collider(this.enemies, this.walls);
     this.physics.add.collider(this.enemies, this.enemies);
     this.physics.add.collider(this.king, this.enemies, (obj1, obj2) => {
-      (obj1 as Player).getDamage(1);
-      console.log('Hit');
+      (obj1 as Player).getDamage(5);
     });
   }
 }

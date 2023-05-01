@@ -9,12 +9,18 @@ export default class UI extends Scene {
 
   private gameEndPhrase!: Text;
   private gameEndHandler: (status: GameStatus) => void;
+
+  private totalChest = 0; 
+  private totalChestHandler: (value: number) => void;
   
   constructor () {
     super('UIScene');
   
     this.chestLootHandler = () => {
       this.score.changeValue(ScoreOptions.INCREASE, 10);
+      if (this.score.getValue() >= this.totalChest && this.totalChest > 0) {
+        this.game.events.emit(EVENTS_NAME.gameEnd, GameStatus.WIN);
+      }
     }
 
     this.gameEndHandler = (status) => {
@@ -34,7 +40,18 @@ export default class UI extends Scene {
         this.game.scale.width / 2 - this.gameEndPhrase.width / 2,
         this.game.scale.height * 0.4,
       );
+
+      this.input.on('pointerdown', () => {
+        this.game.events.off(EVENTS_NAME.chestLoot, this.chestLootHandler);
+        this.game.events.off(EVENTS_NAME.gameEnd, this.gameEndHandler);
+        this.scene.get('Level1Scene').scene.restart();
+        this.scene.restart();
+      });
     };
+
+    this.totalChestHandler = (value) => {
+      this.totalChest += value;
+    }
   }
 
   create() {
@@ -45,9 +62,8 @@ export default class UI extends Scene {
 
   private initListeners() {
     this.game.events.on(EVENTS_NAME.chestLoot, this.chestLootHandler, this);
+    this.game.events.on(EVENTS_NAME.totalChest, this.totalChestHandler, this);
     this.game.events.once(EVENTS_NAME.gameEnd, this.gameEndHandler, this);
-    this.game.events.on(EVENTS_NAME.gameEnd, () => {
-    }, this)
   }
 
   update(): void {

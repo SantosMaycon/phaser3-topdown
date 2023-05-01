@@ -35,4 +35,8 @@ export class Score extends Text {
 
     this.setText(`Score: ${this.scoreValue}`);
   }
+
+  public getValue() {
+    return this.scoreValue;
+  }
 }
