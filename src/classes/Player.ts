@@ -2,8 +2,11 @@ import { Input } from "phaser";
 import { Actor } from "./Actor";
 import { Text } from "./Text";
 import { EVENTS_NAME, GameStatus } from "../utils/Consts";
+import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
+
 
 export class Player extends Actor {
+  private joyStick!: VirtualJoystick;
   private gamepad!: Phaser.Input.Gamepad.GamepadPlugin;
   private keyW!: Phaser.Input.Keyboard.Key;
   private keyA!: Phaser.Input.Keyboard.Key;
@@ -17,6 +20,7 @@ export class Player extends Actor {
 
   private isLookingRight = true;
   private isAttacking = false;
+  private isTouchAttack = false
 
   private attackArea!: Phaser.GameObjects.Arc
   public attackRadius = 25;
@@ -44,6 +48,7 @@ export class Player extends Actor {
     this.on('animationcomplete', (animation: any, frame: any) => {
       if (animation.key === 'attack') {
         this.isAttacking = false;
+        this.isTouchAttack = false;
       }
     });
 
@@ -60,6 +65,42 @@ export class Player extends Actor {
     this.on('destroy', () => {
       this.keySpace.removeAllListeners();
     });
+
+    // CONFIG JOY STICK
+    this.joyStick = new VirtualJoystick(scene, {
+      x: 80,
+      y: scene.game.canvas.height - 80,
+      radius: 40,
+      base: scene.add.circle(0, 0, 40, 0x2a2a2a).setDepth(4),
+      thumb: scene.add.circle(0, 0, 20, 0x656565).setDepth(4),
+      dir: "8dir", 
+      forceMin: 32,
+      enable: true,
+    });
+
+    if (scene.sys.game.device.os.desktop) {
+      this.joyStick.toggleVisible();
+    } else {
+      scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+        if (pointer.isDown) {
+          const dist = Phaser.Math.Distance.Between(
+            pointer.x,
+            pointer.y,
+            this.joyStick.x,
+            this.joyStick.y
+          );
+          if (dist > 40) {
+            // o toque está fora do joystick virtual
+            // faça algo aqui, como mover o jogador
+            this.isTouchAttack = true; 
+          }
+        }
+      });
+    }
+
+    scene.scale.on('resize', (gameSize: Phaser.Structs.Size, baseSize: Phaser.Structs.Size, displaySize: Phaser.Structs.Size, resolution: number) => {
+      this.joyStick.setPosition(80, scene.game.canvas.height - 80);
+    }, scene);
   }
 
   public getDamage(value?: number) {
@@ -75,6 +116,7 @@ export class Player extends Actor {
   }
 
   update() {
+    
     const attackDirection = this.isLookingRight ? +40 : -40
 
     this.hpValue?.setPosition(this.x, this.y - this.height * 0.6);
@@ -92,32 +134,32 @@ export class Player extends Actor {
 
     const diagonalFactor = 0.7; // fator de multiplicação para a velocidade diagonal
 
-    if (this.keyW?.isDown) {
+    if (this.keyW?.isDown || this.joyStick.up) {
       this.body.velocity.y = -this.velocity;
-      if (this.keyA?.isDown || this.keyD?.isDown) {
+      if ((this.keyA?.isDown || this.keyD?.isDown) || (this.joyStick.left || this.joyStick.right)) {
         this.body.velocity.y *= diagonalFactor;
       }
     }
-    if (this.keyA?.isDown) {
+    if (this.keyA?.isDown || this.joyStick.left) {
       this.body.velocity.x = -this.velocity;
-      if (this.keyW?.isDown || this.keyS?.isDown) {
+      if ((this.keyW?.isDown || this.keyS?.isDown) || (this.joyStick.up || this.joyStick.down)) {
         this.body.velocity.x *= diagonalFactor;
       }
     }
-    if (this.keyS?.isDown) {
+    if (this.keyS?.isDown || this.joyStick.down) {
       this.body.velocity.y = this.velocity;
-      if (this.keyA?.isDown || this.keyD?.isDown) {
+      if ((this.keyA?.isDown || this.keyD?.isDown) || (this.joyStick.left || this.joyStick.right)) {
         this.body.velocity.y *= diagonalFactor;
       }
     }
-    if (this.keyD?.isDown) {
+    if (this.keyD?.isDown || this.joyStick.right) {
       this.body.velocity.x = this.velocity;
-      if (this.keyW?.isDown || this.keyS?.isDown) {
+      if ((this.keyW?.isDown || this.keyS?.isDown) || (this.joyStick.up || this.joyStick.down)) {
         this.body.velocity.x *= diagonalFactor;
       }
     }
 
-    if (this.keySpace?.isDown) {
+    if (this.keySpace?.isDown || this.isTouchAttack) {
       this.anims.play('attack', true);
       this.scene.game.events.emit(EVENTS_NAME.attack);
       this.isAttacking = true;
