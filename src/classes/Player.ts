@@ -19,7 +19,7 @@ export class Player extends Actor {
   private isAttacking = false;
 
   private attackArea!: Phaser.GameObjects.Arc
-  public attackRadius = 20;
+  public attackRadius = 25;
 
   constructor(scene: Phaser.Scene, x: number, y: number, velocity: number) {
     super(scene, x, y, 'king');
