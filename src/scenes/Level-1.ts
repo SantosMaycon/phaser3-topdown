@@ -36,7 +36,8 @@ export default class Level1 extends Phaser.Scene {
     this.map = this.make.tilemap({ key: 'dungeon' });
     const tileset = this.map.addTilesetImage('dungeon', 'tiles');
 
-    const ground = createLayer(this.map, tileset, 'Ground', 0, 2, false);
+    createLayer(this.map, tileset, 'Foreground', 3, 2, false);
+    createLayer(this.map, tileset, 'Ground', 0, 2, false);
     this.walls = createLayer(this.map, tileset, 'Walls', 1, 2, true);
 
     this.physics.add.collider(this.king, this.walls);
@@ -72,7 +73,7 @@ export default class Level1 extends Phaser.Scene {
     )
 
     this.enemies = enemiesPoints.map((enemyPoint) => {
-      return new Enemy(this, enemyPoint.x, enemyPoint.y, 'tiles_spr', this.king, 503)
+      return new Enemy(this, enemyPoint.x * 2, enemyPoint.y * 2, 'tiles_spr', this.king, 503)
       .setName(enemyPoint.id.toString())
       .setScale(2);
     })

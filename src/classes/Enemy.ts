@@ -4,7 +4,7 @@ import { Player } from "./Player";
 
 export class Enemy extends Actor {
   private  target: Player;
-  private AGRESSOR_RADIUS = 100;
+  private AGRESSOR_RADIUS = 160;
   private attackHandler: () => void;
   private isDestroy = false;
 

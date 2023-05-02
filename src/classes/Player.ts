@@ -50,7 +50,8 @@ export class Player extends Actor {
     setTimeout(() => {
       this.hpValue = new Text(scene, this.x, this.y - this.height * 0.6, this.hp.toString())
         .setFontSize(12)
-        .setOrigin(0.8, 0.5);
+        .setOrigin(0.8, 0.5)
+        .setDepth(this.depth);
     
       // Attack
       this.attackArea = scene.add.circle(0, 0, this.attackRadius, 0x0000ff, 0);
