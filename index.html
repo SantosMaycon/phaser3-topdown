@@ -9,10 +9,33 @@
         margin: 0;
         padding: 0;
       }
+
+      .fullscreen {
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        width: 52px;
+        cursor: pointer;
+      }
     </style>
     <script type="module" src="/src/index.ts"></script>
   </head>
   <body>
+    <img src="public/assets/sprites/fullscreen.png" alt="Full Screen" class="fullscreen" id="fullscreen">
     <div id="game"></div>
   </body>
+  <script>
+    const fullscreen = window.document.querySelector('#fullscreen');
+    fullscreen.addEventListener('click', () => {
+      if (document.fullscreenElement) {
+        // Se já estiver em tela cheia, saia da tela cheia
+        document.exitFullscreen();
+        fullscreen.src = "public/assets/sprites/fullscreen.png"
+      } else {
+        // Se não estiver em tela cheia, entre em tela cheia
+        window.document.body.requestFullscreen();
+        fullscreen.src = "public/assets/sprites/focus.png"
+      }
+    });
+  </script>
 </html>
