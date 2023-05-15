@@ -6,6 +6,9 @@ import { gameObjectsToObjectPoints } from '../helpers/gameobject-to-object-point
 import { EVENTS_NAME } from '../utils/Consts';
 import { Enemy } from '../classes/Enemy';
 
+const SCALE = 3;
+const SCALE_MAP = 3;
+
 export default class Level1 extends Phaser.Scene {
   private king!: Player;
   private map!: Tilemaps.Tilemap;
@@ -18,8 +21,10 @@ export default class Level1 extends Phaser.Scene {
   }
 
   create() {
-    this.king = new Player(this, 150, 155, 200);
-    this.king.depth = 2;
+    this.king = new Player(this, 150, 155, 200)
+                      .setDepth(2)
+                      .setScale(SCALE);
+
 
     this.initMap();
     this.initChests();
@@ -36,9 +41,9 @@ export default class Level1 extends Phaser.Scene {
     this.map = this.make.tilemap({ key: 'dungeon' });
     const tileset = this.map.addTilesetImage('dungeon', 'tiles');
 
-    createLayer(this.map, tileset, 'Foreground', 3, 2, false);
-    createLayer(this.map, tileset, 'Ground', 0, 2, false);
-    this.walls = createLayer(this.map, tileset, 'Walls', 1, 2, true);
+    createLayer(this.map, tileset, 'Foreground', 3, SCALE_MAP, false);
+    createLayer(this.map, tileset, 'Ground', 0, SCALE_MAP, false);
+    this.walls = createLayer(this.map, tileset, 'Walls', 1, SCALE_MAP, true);
 
     this.physics.add.collider(this.king, this.walls);
   
@@ -51,7 +56,7 @@ export default class Level1 extends Phaser.Scene {
     );
     
     this.chests = chestPoints.map( 
-      point => this.physics.add.sprite(point.x * 2, point.y * 2, 'tiles_spr', 595).setScale(1.5).setScale(2)
+      point => this.physics.add.sprite(point.x * SCALE, point.y * SCALE, 'tiles_spr', 595).setScale(1.5).setScale(SCALE)
     );
 
     this.chests.forEach(chest => {
@@ -73,9 +78,8 @@ export default class Level1 extends Phaser.Scene {
     )
 
     this.enemies = enemiesPoints.map((enemyPoint) => {
-      return new Enemy(this, enemyPoint.x * 2, enemyPoint.y * 2, 'tiles_spr', this.king, 503)
-      .setName(enemyPoint.id.toString())
-      .setScale(2);
+      return new Enemy(this, enemyPoint.x * SCALE, enemyPoint.y * SCALE, 'tiles_spr', this.king, 503)
+      .setName(enemyPoint.id.toString()).setScale(SCALE);
     })
 
 

@@ -1,0 +1,52 @@
+{
+    "anims": [
+        {
+            "key": "run",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "knight_f",
+                    "frame": "knight_f_run_anim_f1"
+                },
+                {
+                    "key": "knight_f",
+                    "frame": "knight_f_run_anim_f2"
+                },
+                {
+                    "key": "knight_f",
+                    "frame": "knight_f_run_anim_f3"
+                },
+                {
+                    "key": "knight_f",
+                    "frame": "knight_f_run_anim_f4"
+                }
+            ]
+        },
+        {
+            "key": "idle",
+            "type": "frames",
+            "repeat": -1,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "knight_f",
+                    "frame": "knight_f_idle_anim_f1"
+                },
+                {
+                    "key": "knight_f",
+                    "frame": "knight_f_idle_anim_f3"
+                },
+                {
+                    "key": "knight_f",
+                    "frame": "knight_f_idle_anim_f2"
+                },
+                {
+                    "key": "knight_f",
+                    "frame": "knight_f_idle_anim_f4"
+                }
+            ]
+        }
+    ]
+}

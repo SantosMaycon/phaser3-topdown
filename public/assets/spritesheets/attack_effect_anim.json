@@ -1,0 +1,32 @@
+{
+    "anims": [
+        {
+            "key": "attack",
+            "type": "frames",
+            "repeat": 0,
+            "frameRate": 12,
+            "frames": [
+                {
+                    "key": "attack_effect",
+                    "frame": "atack_effect_0"
+                },
+                {
+                    "key": "attack_effect",
+                    "frame": "atack_effect_1"
+                },
+                {
+                    "key": "attack_effect",
+                    "frame": "atack_effect_2"
+                },
+                {
+                  "key": "attack_effect",
+                  "frame": "atack_effect_3"
+                },
+                {
+                  "key": "attack_effect",
+                  "frame": "atack_effect_3"
+                }
+            ]
+        }
+    ]
+}

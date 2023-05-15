@@ -4,6 +4,18 @@ import { Text } from "./Text";
 import { EVENTS_NAME, GameStatus } from "../utils/Consts";
 import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
 
+const DIRECTION = {
+  'UP': 270,
+  'RIGHT': 0,
+  'DOWN': 90,
+  'LEFT': 180,
+  // DIAGONAL
+  'UP_RIGHT': 315,
+  'UP_LEFT': 230,
+  'DOWN_RIGHT': 45,
+  'DOWN_LEFT': 135 
+}
+
 
 export class Player extends Actor {
   private joyStick!: VirtualJoystick;
@@ -22,11 +34,14 @@ export class Player extends Actor {
   private isAttacking = false;
   private isTouchAttack = false
 
-  private attackArea!: Phaser.GameObjects.Arc
+  private attackSprite!: Phaser.GameObjects.Sprite;
+  private attackArea!: Phaser.GameObjects.Arc;
   public attackRadius = 25;
 
+  private angleDirection = 0;
+
   constructor(scene: Phaser.Scene, x: number, y: number, velocity: number) {
-    super(scene, x, y, 'king');
+    super(scene, x, y, 'knight_f');
 
     this.gamepad = this.scene.input.gamepad;
 
@@ -35,22 +50,18 @@ export class Player extends Actor {
     this.keyS = this.scene.input.keyboard.addKey('S');
     this.keyD = this.scene.input.keyboard.addKey('D');
 
-    this.getBody().setSize(20, 10);
-    this.getBody().setOffset(22,33);
+    const width = this.width - 5;
+    const height = this.height - 23;
+
+    this.getBody().setSize(width, height);
+    this.getBody().setOffset(4, 23);
 
     this.velocity = velocity;
-    this.setScale(1.5);
 
-    this.initAnimations();
+    this.anims.play('idle');
     this.hp = 100;
 
     this.keySpace = this.scene.input.keyboard.addKey(32);
-    this.on('animationcomplete', (animation: any, frame: any) => {
-      if (animation.key === 'attack') {
-        this.isAttacking = false;
-        this.isTouchAttack = false;
-      }
-    });
 
     setTimeout(() => {
       this.hpValue = new Text(scene, this.x, this.y - this.height * 0.6, this.hp.toString())
@@ -59,7 +70,15 @@ export class Player extends Actor {
         .setDepth(this.depth);
     
       // Attack
-      this.attackArea = scene.add.circle(0, 0, this.attackRadius, 0x0000ff, 0);
+      this.attackArea = scene.add.circle(this.x + 50, this.y + 10, this.attackRadius, 0x0000ff, 0);
+      this.attackSprite = scene.add.sprite(this.x + 50, this.y + 10, 'attack_effect', 'atack_effect_3').setScale(this.scale);
+    
+      this.attackSprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation: any, frame: any) => {
+        if (animation.key === 'attack') {
+          this.isAttacking = false;
+          this.isTouchAttack = false;
+        }
+      });
     }, 0);
 
     this.on('destroy', () => {
@@ -80,22 +99,6 @@ export class Player extends Actor {
 
     if (scene.sys.game.device.os.desktop) {
       this.joyStick.toggleVisible();
-    } else {
-      scene.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-        if (pointer.isDown) {
-          const dist = Phaser.Math.Distance.Between(
-            pointer.x,
-            pointer.y,
-            this.joyStick.x,
-            this.joyStick.y
-          );
-          if (dist > 40) {
-            // o toque está fora do joystick virtual
-            // faça algo aqui, como mover o jogador
-            this.isTouchAttack = true; 
-          }
-        }
-      });
     }
 
     scene.scale.on('resize', (gameSize: Phaser.Structs.Size, baseSize: Phaser.Structs.Size, displaySize: Phaser.Structs.Size, resolution: number) => {
@@ -116,58 +119,55 @@ export class Player extends Actor {
   }
 
   update() {
-    
-    const attackDirection = this.isLookingRight ? +40 : -40
-
-    this.hpValue?.setPosition(this.x, this.y - this.height * 0.6);
-    this.attackArea?.setPosition(this.x + attackDirection, this.y);
+    this.hpValue?.setPosition(this.x, this.y - this.height);
 
     if (this.isAttacking) return
 
     this.getBody().setVelocity(0);
-    const pad = this.gamepad.getPad(0);
-
-    if (pad) {
-      this.getBody().setVelocityX(pad.leftStick.x * this.velocity);
-      this.getBody().setVelocityY(pad.leftStick.y * this.velocity);
-    }
-
+   
     const diagonalFactor = 0.7; // fator de multiplicação para a velocidade diagonal
 
     if (this.keyW?.isDown || this.joyStick.up) {
       this.body.velocity.y = -this.velocity;
+      this.angleDirection = DIRECTION.UP
       if ((this.keyA?.isDown || this.keyD?.isDown) || (this.joyStick.left || this.joyStick.right)) {
         this.body.velocity.y *= diagonalFactor;
+        this.angleDirection = (this.keyA?.isDown || this.joyStick.left) ? DIRECTION.UP_LEFT : DIRECTION.UP_RIGHT;
       }
     }
     if (this.keyA?.isDown || this.joyStick.left) {
       this.body.velocity.x = -this.velocity;
+      this.angleDirection = DIRECTION.LEFT
       if ((this.keyW?.isDown || this.keyS?.isDown) || (this.joyStick.up || this.joyStick.down)) {
         this.body.velocity.x *= diagonalFactor;
+        this.angleDirection = (this.keyW?.isDown || this.joyStick.up) ? DIRECTION.UP_LEFT : DIRECTION.DOWN_LEFT;
       }
     }
     if (this.keyS?.isDown || this.joyStick.down) {
       this.body.velocity.y = this.velocity;
+      this.angleDirection = DIRECTION.DOWN
       if ((this.keyA?.isDown || this.keyD?.isDown) || (this.joyStick.left || this.joyStick.right)) {
         this.body.velocity.y *= diagonalFactor;
+        this.angleDirection = (this.keyA?.isDown || this.joyStick.left) ? DIRECTION.DOWN_LEFT : DIRECTION.DOWN_RIGHT;
       }
     }
     if (this.keyD?.isDown || this.joyStick.right) {
       this.body.velocity.x = this.velocity;
+      this.angleDirection = DIRECTION.RIGHT
       if ((this.keyW?.isDown || this.keyS?.isDown) || (this.joyStick.up || this.joyStick.down)) {
         this.body.velocity.x *= diagonalFactor;
+        this.angleDirection = (this.keyW?.isDown || this.joyStick.up) ? DIRECTION.UP_RIGHT : DIRECTION.DOWN_RIGHT;
       }
     }
 
     if (this.keySpace?.isDown || this.isTouchAttack) {
-      this.anims.play('attack', true);
+      this.attackSprite.anims.play('attack')
       this.scene.game.events.emit(EVENTS_NAME.attack);
       this.isAttacking = true;
       this.getBody().setVelocity(0);
     } else if (!this.isAttacking) {
       this.updateMovement();
-    }
-
+    }    
   }
 
   updateMovement() {
@@ -175,17 +175,21 @@ export class Player extends Actor {
 
     this.anims.play(isMoving ? 'run' : 'idle', true);
 
+    if(isMoving) {
+      this.attackArea?.setPosition(this.x + (Math.sign(this.body.velocity.x) * 50), (this.y + 5) + (Math.sign(this.body.velocity.y) * 50));
+      this.attackSprite?.setPosition(this.attackArea.x, this.attackArea.y).setAngle(this.angleDirection);
+    }
+
     if (this.getBody().velocity.x !== 0) {
       var xOffset!: number;
       const direction = Math.sign(this.getBody().velocity.x)
-      
 
       if (direction === 1) {
-        xOffset = 22;
+        xOffset = 4;
         this.isLookingRight = true;
         this.hpValue?.setOrigin(1, 0.5);
       } else if (direction === -1) {
-        xOffset = 42;
+        xOffset = this.width - 1;
         this.isLookingRight = false;
         this.hpValue?.setOrigin(0, 0.5);
       }
@@ -196,29 +200,4 @@ export class Player extends Actor {
       }
     }
   }
-
-  private initAnimations(): void {
-    this.scene.anims.create({
-      key: 'idle',
-      frames: [{ key: 'a-king', frame: 'run-2'}],
-      frameRate: 1,
-    });
-    this.scene.anims.create({
-      key: 'run',
-      frames: this.scene.anims.generateFrameNames('a-king', {
-        prefix: 'run-',
-        end: 7,
-      }),
-      frameRate: 8,
-      repeat: -1
-    });
-    this.scene.anims.create({
-      key: 'attack',
-      frames: this.scene.anims.generateFrameNames('a-king', {
-        prefix: 'attack-',
-        end: 2,
-      }),
-      frameRate: 8,
-    });
-	}
 }
