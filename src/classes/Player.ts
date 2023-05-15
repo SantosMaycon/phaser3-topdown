@@ -1,8 +1,10 @@
-import { Input } from "phaser";
+import { GameObjects, Input } from "phaser";
 import { Actor } from "./Actor";
 import { Text } from "./Text";
 import { EVENTS_NAME, GameStatus } from "../utils/Consts";
 import VirtualJoystick from 'phaser3-rex-plugins/plugins/virtualjoystick.js';
+import Button from 'phaser3-rex-plugins/plugins/button.js';
+
 
 const DIRECTION = {
   'UP': 270,
@@ -30,7 +32,6 @@ export class Player extends Actor {
 
   private hpValue!: Text;
 
-  private isLookingRight = true;
   private isAttacking = false;
   private isTouchAttack = false
 
@@ -71,12 +72,13 @@ export class Player extends Actor {
     
       // Attack
       this.attackArea = scene.add.circle(this.x + 50, this.y + 10, this.attackRadius, 0x0000ff, 0);
-      this.attackSprite = scene.add.sprite(this.x + 50, this.y + 10, 'attack_effect', 'atack_effect_3').setScale(this.scale);
+      this.attackSprite = scene.add.sprite(this.x + 50, this.y + 10, 'attack_effect', 'atack_effect_0').setScale(this.scale).setAlpha(0);
     
       this.attackSprite.on(Phaser.Animations.Events.ANIMATION_COMPLETE, (animation: any, frame: any) => {
         if (animation.key === 'attack') {
           this.isAttacking = false;
           this.isTouchAttack = false;
+          this.attackSprite.setAlpha(0);
         }
       });
     }, 0);
@@ -87,22 +89,45 @@ export class Player extends Actor {
 
     // CONFIG JOY STICK
     this.joyStick = new VirtualJoystick(scene, {
-      x: 80,
-      y: scene.game.canvas.height - 80,
+      x: 100,
+      y: scene.game.canvas.height - 100,
       radius: 40,
-      base: scene.add.circle(0, 0, 40, 0x2a2a2a).setDepth(4),
-      thumb: scene.add.circle(0, 0, 20, 0x656565).setDepth(4),
+      base: scene.add.circle(0, 0, 50, 0x2a2a2a).setDepth(10),
+      thumb: scene.add.circle(0, 0, 30, 0x656565).setDepth(10),
       dir: "8dir", 
       forceMin: 32,
       enable: true,
+    }).setScrollFactor(0);
+
+
+    const buttonSprite = scene.add.circle(
+        scene.game.canvas.width - 100, 
+        scene.game.canvas.height - 100, 
+        45, 
+        0x656565
+      ).setDepth(10).setScrollFactor(0);
+
+    const buttonAttack = new Button(buttonSprite, {
+      enable: true,
+      mode: 'press',
+      clickInterval: 250  
+    });
+    
+    buttonAttack.on('click', (button: Phaser.GameObjects.GameObject, gameObject: Phaser.GameObjects.GameObject, pointer: Phaser.Input.Pointer, event: Phaser.Types.Input.EventData) => {
+      if (!this.isTouchAttack) {
+        this.isTouchAttack = true;
+      }
     });
 
     if (scene.sys.game.device.os.desktop) {
       this.joyStick.toggleVisible();
+      buttonAttack.toggleEnable();
+      buttonSprite.setVisible(false);
     }
 
     scene.scale.on('resize', (gameSize: Phaser.Structs.Size, baseSize: Phaser.Structs.Size, displaySize: Phaser.Structs.Size, resolution: number) => {
-      this.joyStick.setPosition(80, scene.game.canvas.height - 80);
+      this.joyStick.setPosition(100, scene.game.canvas.height - 100);
+      buttonSprite.setPosition(scene.game.canvas.width - 100, scene.game.canvas.height - 100);
     }, scene);
   }
 
@@ -161,7 +186,7 @@ export class Player extends Actor {
     }
 
     if (this.keySpace?.isDown || this.isTouchAttack) {
-      this.attackSprite.anims.play('attack')
+      this.attackSprite.setAlpha(1).anims.play('attack')
       this.scene.game.events.emit(EVENTS_NAME.attack);
       this.isAttacking = true;
       this.getBody().setVelocity(0);
@@ -186,11 +211,9 @@ export class Player extends Actor {
 
       if (direction === 1) {
         xOffset = 4;
-        this.isLookingRight = true;
         this.hpValue?.setOrigin(1, 0.5);
       } else if (direction === -1) {
         xOffset = this.width - 1;
-        this.isLookingRight = false;
         this.hpValue?.setOrigin(0, 0.5);
       }
 
