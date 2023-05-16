@@ -21,6 +21,8 @@ export default class Level1 extends Phaser.Scene {
   }
 
   create() {
+    this.input.addPointer(2);
+
     this.king = new Player(this, 150, 155, 200)
                       .setDepth(2)
                       .setScale(SCALE);
