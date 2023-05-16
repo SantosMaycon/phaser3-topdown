@@ -69,7 +69,8 @@ export class Player extends Actor {
 
     setTimeout(() => {
       this.hpElement = document.querySelector('#hp') as HTMLElement;
-    
+      this.hpElement.style.width = ((this.hp / this.hpTotal) * 100) + '%'
+
       // Attack
       this.attackArea = scene.add.circle(this.x + 50, this.y + 10, this.attackRadius, 0x0000ff, 0);
       this.attackSprite = scene.add.sprite(this.x + 50, this.y + 10, 'attack_effect', 'atack_effect_0').setScale(this.scale).setAlpha(0);
