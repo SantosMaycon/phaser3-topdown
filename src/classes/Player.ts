@@ -30,7 +30,8 @@ export class Player extends Actor {
 
   private velocity!: number;
 
-  private hpValue!: Text;
+  private hpTotal = 0;
+  private hpElement!: HTMLElement;
 
   private isAttacking = false;
   private isTouchAttack = false
@@ -61,14 +62,13 @@ export class Player extends Actor {
 
     this.anims.play('idle');
     this.hp = 100;
+    this.hpTotal = this.hp;
+    
 
     this.keySpace = this.scene.input.keyboard.addKey(32);
 
     setTimeout(() => {
-      this.hpValue = new Text(scene, this.x, this.y - this.height * 0.6, this.hp.toString())
-        .setFontSize(12)
-        .setOrigin(0.8, 0.5)
-        .setDepth(this.depth);
+      this.hpElement = document.querySelector('#hp') as HTMLElement;
     
       // Attack
       this.attackArea = scene.add.circle(this.x + 50, this.y + 10, this.attackRadius, 0x0000ff, 0);
@@ -133,7 +133,7 @@ export class Player extends Actor {
 
   public getDamage(value?: number) {
     super.getDamage(value);
-    this.hpValue.setText(this.hp.toString());
+    this.hpElement.style.width = ((this.hp / this.hpTotal) * 100) + '%'
     if (this.hp <= 0) {
       this.scene.game.events.emit(EVENTS_NAME.gameEnd, GameStatus.LOSE);
     }
@@ -144,8 +144,6 @@ export class Player extends Actor {
   }
 
   update() {
-    this.hpValue?.setPosition(this.x, this.y - this.height);
-
     if (this.isAttacking) return
 
     this.getBody().setVelocity(0);
@@ -211,10 +209,8 @@ export class Player extends Actor {
 
       if (direction === 1) {
         xOffset = 4;
-        this.hpValue?.setOrigin(1, 0.5);
       } else if (direction === -1) {
         xOffset = this.width - 1;
-        this.hpValue?.setOrigin(0, 0.5);
       }
 
       this.checkFlip();
