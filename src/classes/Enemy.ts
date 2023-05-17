@@ -30,10 +30,12 @@ export class Enemy extends Actor {
       ) {
         this.isDestroy = true;
         this.getDamage();
-        this.disableBody(true, false);
-        this.scene.time.delayedCall(300, () => {
-          this.destroy();
-        });
+        if (this.body) {
+          this.disableBody(true, false);
+          this.scene.time.delayedCall(300, () => {
+            this.destroy();
+          });
+        }
       }
     }
 
