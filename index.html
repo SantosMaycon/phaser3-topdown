@@ -50,11 +50,9 @@
     const fullscreen = window.document.querySelector('#fullscreen');
     fullscreen.addEventListener('click', () => {
       if (document.fullscreenElement) {
-        // Se já estiver em tela cheia, saia da tela cheia
         document.exitFullscreen();
         fullscreen.src = "/assets/sprites/fullscreen.png"
       } else {
-        // Se não estiver em tela cheia, entre em tela cheia
         window.document.body.requestFullscreen();
         fullscreen.src = "/assets/sprites/close.png"
       }
