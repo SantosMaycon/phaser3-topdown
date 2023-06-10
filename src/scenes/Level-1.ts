@@ -29,7 +29,7 @@ export default class Level1 extends Phaser.Scene {
 
 
     this.initMap();
-    this.initChests();
+    // this.initChests();
     this.initEnemies();
     
     this.cameras.main.startFollow(this.king, true,  0.09, 0.09);
@@ -63,15 +63,10 @@ export default class Level1 extends Phaser.Scene {
 
     this.chests.forEach(chest => {
       this.physics.add.overlap(this.king, chest, (king, chest) => {
-        this.game.events.emit(EVENTS_NAME.chestLoot);
         chest.destroy();
         this.cameras.main.flash();
       })
     });
-
-    setTimeout(() => {
-      this.game.events.emit(EVENTS_NAME.totalChest, 10 * chestPoints.length);
-    }, 0);
   }
 
   private initEnemies() {
