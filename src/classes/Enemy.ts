@@ -4,7 +4,7 @@ import { Player } from "./Player";
 
 export class Enemy extends Actor {
   private  target: Player;
-  private AGRESSOR_RADIUS = 160;
+  private AGRESSOR_RADIUS = 300;
   private attackHandler: () => void;
   private isDestroy = false;
 
@@ -18,6 +18,7 @@ export class Enemy extends Actor {
 
     this.getBody().setSize(16, 16);
     this.getBody().setOffset(1, 0);
+    this.setMaxVelocity(50);
 
     this.attackHandler = () => {
       if (this.isDestroy) return ;
@@ -48,21 +49,10 @@ export class Enemy extends Actor {
 
 
   preUpdate(time: number, delta: number) {
-    if (
-      Phaser.Math.Distance.BetweenPoints(
-        { x: this.x, y: this.y },
-        { x: this.target.x, y: this.target.y}
-      ) < this.AGRESSOR_RADIUS
-      ) {
-        this.getBody().setVelocityX(this.target.x - this.x);
-        this.getBody().setVelocityY(this.target.y - this.y);
-        
-        this.checkFlip();
-
-        this.getBody().offset.x = Math.sign(this.getBody().velocity.x) === 1 ? 1 : 18;
-    } else {
-      this.getBody().setVelocity(0);
-    }
+    this.getBody().setVelocityX(this.target.x - this.x);
+    this.getBody().setVelocityY(this.target.y - this.y);
+    this.checkFlip();
+    this.getBody().offset.x = Math.sign(this.getBody().velocity.x) === 1 ? 1 : 18;
   }
 
   public setTarget(target: Player) {
