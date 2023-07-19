@@ -1,8 +1,11 @@
 {
-  "name": "phaser3-rollup-typescript",
+  "name": "survival-dungeon-crawler",
   "version": "1.1.0",
-  "description": "Phaser 3 TypeScript Starter",
+  "description": "Phaser 3 Survival Duengeon Crawler",
   "main": "dist/index.js",
+  "author": {
+    "name": "Santos Maycon"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
