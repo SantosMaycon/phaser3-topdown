@@ -18,7 +18,8 @@ export class Enemy extends Actor {
 
     this.getBody().setSize(16, 16);
     this.getBody().setOffset(1, 0);
-    this.setMaxVelocity(50);
+
+    this.setMaxVelocity(Phaser.Math.Between(50, 90));
 
     this.attackHandler = () => {
       if (this.isDestroy) return ;
