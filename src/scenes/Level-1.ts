@@ -16,27 +16,51 @@ export default class Level1 extends Phaser.Scene {
   private walls!: Tilemaps.TilemapLayer;
   private spawnPoints?: { x: number, y: number, radius: number }[] = [];
   private level = 1;
+  private timeToSpawn = 5000;
+  private levelText!: HTMLElement;
 
   constructor() {
     super('Level1Scene');
   }
-
+  
   create() {
+    // Reset
+    this.spawnPoints = [];
+    this.enemies = [];
+    this.level = 1;
+    this.levelText = document.getElementById('level')!;
+    this.levelText.innerText = this.level.toString();
+
     this.input.addPointer(2);
 
     this.king = new Player(this, 330 * SCALE, 180 * SCALE, 200)
                       .setDepth(2)
                       .setScale(SCALE);
 
-
     this.initMap();
     this.initSpawns();
     
     this.cameras.main.startFollow(this.king, true,  0.09, 0.09);
+
+    // Events to call initSpawns
+    this.game.events.on(EVENTS_NAME.spawn, () => {
+      this.enemies = this.enemies.filter((enemy) => enemy.active);
+    }, this);
   }
 
   update(time: number, delta: number) {
     this.king.update();
+    // countdown to spawn
+    if (this.enemies.length === 0) {
+      this.timeToSpawn -= delta;
+    }
+
+    if (this.timeToSpawn <= 0 && this.enemies.length === 0) {
+      this.initSpawns();
+      this.level++;
+      this.levelText.innerText = this.level.toString();
+      this.timeToSpawn = 5000;
+    }
   }
 
   private initMap() {
@@ -56,7 +80,7 @@ export default class Level1 extends Phaser.Scene {
     const points = gameObjectsToObjectPoints(
       this.map.filterObjects('Spawns', (x) => x.name === 'SpawnPoint')
     )
-      
+
     points.forEach((spawnPoint) => {
       this.spawnPoints?.push({ 
         x: spawnPoint.x * SCALE_MAP,
@@ -73,6 +97,7 @@ export default class Level1 extends Phaser.Scene {
   private initEnemies() {
     this.enemies = this.spawnPoints!.map((enemyPoint, index) => {
       const point = this.getRandomPositionInRadius(enemyPoint.x, enemyPoint.y, enemyPoint.radius);
+
       return new Enemy(this, point.x, point.y, 'tiles_spr', this.king, 503)
       .setName(this.level + index.toString()).setScale(SCALE);
     })
@@ -94,7 +119,6 @@ export default class Level1 extends Phaser.Scene {
 
     const positionX = x + offsetX;
     const positionY = y + offsetY;
-    console.log(positionX, positionY);
     
     return { x: positionX, y: positionY };
   }

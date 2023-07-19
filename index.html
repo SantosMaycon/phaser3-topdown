@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Phaser 3 TypeScript Starter</title>
+    <title>Survival</title>
     <meta charset="utf-8" />
     <style>
       html,
@@ -36,13 +36,23 @@
         border-radius: 30px;
         background-color: #3D734F;
       }
+
+      h1 {
+        position: absolute;
+        color: white;
+        font-family: cursive;
+        top: 40px;
+        left: 20px;
+      }
     </style>
+    <link rel="icon" type="image/png"  href="./assets/icons/icon.png">
     <script type="module" src="/src/index.ts"></script>
   </head>
   <body>
     <div class="hp_container">
       <span id="hp" class="hp"></span>
     </div>
+    <h1>Level: <b id="level">1</b></h1>
     <img src="/assets/sprites/fullscreen.png" alt="Full Screen" class="fullscreen" id="fullscreen">
     <div id="game"></div>
   </body>

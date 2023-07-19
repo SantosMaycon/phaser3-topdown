@@ -8,7 +8,7 @@ export default class UI extends Scene {
 
   private totalChest = 0; 
   private totalChestHandler: (value: number) => void;
-  
+
   constructor () {
     super('UIScene');
 
@@ -31,7 +31,7 @@ export default class UI extends Scene {
       );
 
       this.input.on('pointerdown', () => {
-        // this.game.events.off(EVENTS_NAME.gameEnd, this.gameEndHandler);
+        this.game.events.off(EVENTS_NAME.gameEnd, this.gameEndHandler);
         this.scene.get('Level1Scene').scene.restart();
         this.scene.restart();
       });
